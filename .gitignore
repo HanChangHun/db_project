@@ -1,3 +1,7 @@
+# changhun's ignore
+notebooks/service_key.json
+
+
 MANIFEST
 build
 dist

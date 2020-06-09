@@ -39,7 +39,7 @@
     <property name="title">
      <string>채식주의 선택</string>
     </property>
-    <widget class="QComboBox" name="comboBox">
+    <widget class="QComboBox" name="vegCombo">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -48,6 +48,46 @@
        <height>26</height>
       </rect>
      </property>
+     <item>
+      <property name="text">
+       <string>해당없음</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>비건</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>락토 베지테리언</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>오보 베지테리언</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>락토 오보 베지테리언</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>페스코 베지테리언</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>폴로 베지테리언</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>플랙시테리언</string>
+      </property>
+     </item>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox">
@@ -80,7 +120,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_2"/>
+       <widget class="QLineEdit" name="setPass_text"/>
       </item>
      </layout>
     </widget>
@@ -102,14 +142,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="maleBtn">
         <property name="text">
          <string>남</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="femaleBtn">
         <property name="text">
          <string>여</string>
         </property>
@@ -135,7 +175,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spinBox"/>
+       <widget class="QSpinBox" name="getAge_box"/>
       </item>
      </layout>
     </widget>
@@ -157,10 +197,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="setID_text"/>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="checkOverlapBtn">
         <property name="text">
          <string>중복확인</string>
         </property>
@@ -169,7 +209,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QGroupBox" name="groupBox_2">
+   <widget class="QGroupBox" name="alle_groupbox">
     <property name="geometry">
      <rect>
       <x>30</x>
@@ -192,49 +232,49 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="3" column="0">
-       <widget class="QCheckBox" name="checkBox_6">
+       <widget class="QCheckBox" name="peanut_check">
         <property name="text">
          <string>땅콩</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QCheckBox" name="checkBox_4">
+       <widget class="QCheckBox" name="milk_check">
         <property name="text">
          <string>우유</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QCheckBox" name="checkBox_7">
+       <widget class="QCheckBox" name="bean_check">
         <property name="text">
          <string>대두</string>
         </property>
        </widget>
       </item>
       <item row="6" column="0">
-       <widget class="QCheckBox" name="checkBox_3">
+       <widget class="QCheckBox" name="wheat_check">
         <property name="text">
          <string>밀</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="egg_check">
         <property name="text">
          <string>난류</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QCheckBox" name="checkBox_5">
+       <widget class="QCheckBox" name="buckwheat_check">
         <property name="text">
          <string>메밀</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0">
-       <widget class="QCheckBox" name="checkBox_19">
+       <widget class="QCheckBox" name="beef_check">
         <property name="text">
          <string>쇠고기</string>
         </property>
@@ -253,49 +293,49 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="2" column="0">
-       <widget class="QCheckBox" name="checkBox_11">
+       <widget class="QCheckBox" name="shrimp_check">
         <property name="text">
          <string>새우</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QCheckBox" name="checkBox_9">
+       <widget class="QCheckBox" name="crab_check">
         <property name="text">
          <string>게</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QCheckBox" name="checkBox_12">
+       <widget class="QCheckBox" name="peach_check">
         <property name="text">
          <string>복숭아</string>
         </property>
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QCheckBox" name="checkBox_8">
+       <widget class="QCheckBox" name="pork_check">
         <property name="text">
          <string>돼지고기</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBox_2">
+       <widget class="QCheckBox" name="mackerel_check">
         <property name="text">
          <string>고등어</string>
         </property>
        </widget>
       </item>
       <item row="6" column="0">
-       <widget class="QCheckBox" name="checkBox_10">
+       <widget class="QCheckBox" name="tomato_check">
         <property name="text">
          <string>토마토</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0">
-       <widget class="QCheckBox" name="checkBox_20">
+       <widget class="QCheckBox" name="squid_check">
         <property name="text">
          <string>오징어</string>
         </property>
@@ -314,49 +354,49 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="1" column="0">
-       <widget class="QCheckBox" name="checkBox_14">
+       <widget class="QCheckBox" name="walnut_check">
         <property name="text">
          <string>호두</string>
         </property>
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QCheckBox" name="checkBox_13">
+       <widget class="QCheckBox" name="kiwi_check">
         <property name="text">
          <string>키위</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBox_16">
+       <widget class="QCheckBox" name="acid_check">
         <property name="text">
          <string>아황산류</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QCheckBox" name="checkBox_17">
+       <widget class="QCheckBox" name="pinenut_check">
         <property name="text">
          <string>잣</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QCheckBox" name="checkBox_18">
+       <widget class="QCheckBox" name="chicken_check">
         <property name="text">
          <string>닭고기</string>
         </property>
        </widget>
       </item>
       <item row="5" column="0">
-       <widget class="QCheckBox" name="checkBox_21">
+       <widget class="QCheckBox" name="calm_check">
         <property name="text">
          <string>조개류</string>
         </property>
        </widget>
       </item>
       <item row="6" column="0">
-       <widget class="QCheckBox" name="checkBox_15">
+       <widget class="QCheckBox" name="sesame_check">
         <property name="text">
          <string>참깨</string>
         </property>
@@ -364,7 +404,7 @@
       </item>
      </layout>
     </widget>
-    <widget class="QCheckBox" name="checkBox_22">
+    <widget class="QCheckBox" name="none_check">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -378,7 +418,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QDialogButtonBox" name="buttonBox">
+   <widget class="QDialogButtonBox" name="signinBtnBox">
     <property name="geometry">
      <rect>
       <x>90</x>

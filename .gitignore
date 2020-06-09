@@ -1,5 +1,7 @@
 # changhun's ignore
 notebooks/service_key.json
+*.pptx
+*.pdf
 
 
 MANIFEST

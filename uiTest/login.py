@@ -93,12 +93,6 @@ class mainWindow(QMainWindow, mainLayout):
         session = ''
         self.close()
 
-
-
-
-
-
-
 class signinWindow(QMainWindow, signinLayout):
     global ischecked
     ischecked= False # check overlap id

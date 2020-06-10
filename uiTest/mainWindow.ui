@@ -124,8 +124,8 @@
        <rect>
         <x>20</x>
         <y>40</y>
-        <width>251</width>
-        <height>221</height>
+        <width>241</width>
+        <height>171</height>
        </rect>
       </property>
       <property name="text">
@@ -183,6 +183,19 @@
       <layout class="QVBoxLayout" name="imageLayout"/>
      </widget>
     </widget>
+   </widget>
+   <widget class="QLabel" name="showID">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>10</y>
+      <width>65</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
  </widget>

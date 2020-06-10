@@ -78,21 +78,15 @@ class initWindow(QMainWindow, initialLayout):
 
 
 class mainWindow(QMainWindow, mainLayout):
-<<<<<<< HEAD
     global session
-    def  __init__(self, parent=None):
-=======
+
     def __init__(self, parent=None):
->>>>>>> hanchanghun
         super(mainWindow, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle('Main Winow')
 
         self.show()
         self.pushButton_2.clicked.connect(self.read_barcode)
-
-
-<<<<<<< HEAD
         self.showID.setText(session)
         self.logoutBtn.clicked.connect(self.logoutFunction)
 
@@ -101,20 +95,14 @@ class mainWindow(QMainWindow, mainLayout):
         session = ''
         self.close()
 
-
-
-
-
-=======
     def read_barcode(self):
         barcodes = read_barcode()
         self.temp_codes.setText('{}'.format(barcodes))
->>>>>>> hanchanghun
 
 
 class signinWindow(QMainWindow, signinLayout):
     global ischecked
-    ischecked= False # check overlap id
+    ischecked = False # check overlap id
 
     def __init__(self, parent=None):
         super(signinWindow, self).__init__(parent)

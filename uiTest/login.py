@@ -5,12 +5,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox
 import urllib.request
 import psycopg2 as pg2
+from read_barcode import read_barcode
 
 mainLayout = uic.loadUiType("mainWindow.ui")[0]
 signinLayout = uic.loadUiType("signIn.ui")[0]
 initialLayout = uic.loadUiType("initialLayout.ui")[0]
 
-conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
+conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="1234", port="5432")
 cur = conn.cursor()
 
 class initWindow(QMainWindow, initialLayout):
@@ -68,13 +69,18 @@ class initWindow(QMainWindow, initialLayout):
 
 
 class mainWindow(QMainWindow, mainLayout):
-    def  __init__(self, parent=None):
+    def __init__(self, parent=None):
         super(mainWindow, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle('Main Winow')
 
         self.show()
+        self.pushButton_2.clicked.connect(self.read_barcode)
 
+
+    def read_barcode(self):
+        barcodes = read_barcode()
+        self.temp_codes.setText('{}'.format(barcodes))
 
 
 class signinWindow(QMainWindow, signinLayout):
@@ -242,8 +248,8 @@ class signinWindow(QMainWindow, signinLayout):
 
 class initDB():
     createTypeQ = "CREATE TYPE gen AS ENUM ('f', 'm'); "  +\
-                    "CREATE TYPE allergy AS ENUM ('난류', '우유', '메밀', '땅콩', '대두', '쇠고기',  '밀', '고등어', '게', '새우', '돼지고기', '복숭아', '오징어', '토마토', '아황산류', '호두', '잣', '키위', '닭고기', '조개류', '참깨'); " + \
-                    "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'); "
+                  "CREATE TYPE allergy AS ENUM ('난류', '우유', '메밀', '땅콩', '대두', '쇠고기',  '밀', '고등어', '게', '새우', '돼지고기', '복숭아', '오징어', '토마토', '아황산류', '호두', '잣', '키위', '닭고기', '조개류', '참깨'); " + \
+                  "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'); "
 
     createUserQ="CREATE TABLE IF NOT EXISTS UserTable (userID TEXT, password TEXT, gender gen, age INT, allergies allergy[], vName veg, primary key(userID));"
 

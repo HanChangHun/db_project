@@ -13,14 +13,18 @@ initialLayout = uic.loadUiType("initialLayout.ui")[0]
 conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
 cur = conn.cursor()
 
+global session # login session
+
 class initWindow(QMainWindow, initialLayout):
     def __init__(self) :
         super(initWindow, self).__init__(parent=None)
         self.setupUi(self)
 
         self.setWindowTitle('Initial Window')
+
         self.show()
 
+        self.inputPS_text.setEchoMode(QtWidgets.QLineEdit.Password)
         self.signinBtn.clicked.connect(self.opensigninFunction)
         self.loginBtn.clicked.connect(self.loginFunction)
 
@@ -33,6 +37,7 @@ class initWindow(QMainWindow, initialLayout):
         msg.exec_()
 
     def loginFunction(self):
+        global session
         id = self.inputID_text.text()
         pw = self.inputPS_text.text()
 
@@ -55,6 +60,10 @@ class initWindow(QMainWindow, initialLayout):
                 self.inputPS_text.setText("")
             else:
                 self.loginmessegeFuntion()
+                self.inputID_text.setText("")
+                self.inputPS_text.setText("")
+
+                session = id
                 mainWindow(self)
 
 
@@ -68,12 +77,25 @@ class initWindow(QMainWindow, initialLayout):
 
 
 class mainWindow(QMainWindow, mainLayout):
+    global session
     def  __init__(self, parent=None):
         super(mainWindow, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle('Main Winow')
 
         self.show()
+
+        self.showID.setText(session)
+        self.logoutBtn.clicked.connect(self.logoutFunction)
+
+    def logoutFunction(self):
+        global session
+        session = ''
+        self.close()
+
+
+
+
 
 
 
@@ -87,6 +109,8 @@ class signinWindow(QMainWindow, signinLayout):
         self.setWindowTitle('Sign In')
 
         self.show()
+
+        self.setPass_text.setEchoMode(QtWidgets.QLineEdit.Password)
         self.checkOverlapBtn.clicked.connect(self.checkidFunction)
         self.signinBtnBox.accepted.connect(self.signinFunction)
         self.signinBtnBox.rejected.connect(self.closeFunction)

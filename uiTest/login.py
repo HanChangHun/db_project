@@ -1,17 +1,21 @@
-import sys
+# -*- coding: euc-kr -*-
+
+
+from getbarcode import read_barcode
 
 from PyQt5 import uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox
 import urllib.request
+
 import psycopg2 as pg2
-from read_barcode import read_barcode
+import sys
 
 mainLayout = uic.loadUiType("mainWindow.ui")[0]
 signinLayout = uic.loadUiType("signIn.ui")[0]
 initialLayout = uic.loadUiType("initialLayout.ui")[0]
 
-conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="1234", port="5432")
+conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
 cur = conn.cursor()
 
 global session # login session
@@ -34,7 +38,7 @@ class initWindow(QMainWindow, initialLayout):
 
     def loginmessegeFuntion(self):
         msg = QMessageBox()
-        msg.setText("ë°˜ê°‘ìŠµë‹ˆë‹¤!! ")
+        msg.setText("¹İ°©½À´Ï´Ù!! ")
         msg.exec_()
 
     def loginFunction(self):
@@ -53,7 +57,7 @@ class initWindow(QMainWindow, initialLayout):
             if(len(userResult)== 0):
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
-                msg.setText("ì•„ì´ë”” ë¹„ë°€ë²ˆí˜¸ë¥¼ í™•ì¸í•´ì£¼ì„¸ìš”!!")
+                msg.setText("¾ÆÀÌµğ ºñ¹Ğ¹øÈ£¸¦ È®ÀÎÇØÁÖ¼¼¿ä!!")
                 msg.setWindowTitle("Error")
                 msg.exec_()
 
@@ -61,13 +65,15 @@ class initWindow(QMainWindow, initialLayout):
                 self.inputPS_text.setText("")
             else:
                 self.loginmessegeFuntion()
+                session=id
                 mainWindow(self)
-
+                self.inputID_text.setText("")
+                self.inputPS_text.setText("")
 
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("ì•„ì´ë”” ë¹„ë°€ë²ˆí˜¸ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”!! ")
+            msg.setText("¾ÆÀÌµğ ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä!! ")
             msg.setWindowTitle("Error")
             msg.exec_()
         # if it's right open main window
@@ -115,6 +121,7 @@ class signinWindow(QMainWindow, signinLayout):
         self.close()
 
     def signinFunction(self):
+        global isfilled
         # check fully filled
         isfilled = False
 
@@ -131,21 +138,21 @@ class signinWindow(QMainWindow, signinLayout):
 
         # get veg
         # 'vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'
-        if veg == 'í•´ë‹¹ ì—†ìŒ':
+        if veg == 'ÇØ´ç ¾øÀ½':
             veg=''
-        elif veg == 'ë¹„ê±´':
+        elif veg == 'ºñ°Ç':
             veg='vegan'
-        elif veg == "ë½í†  ë² ì§€í…Œë¦¬ì–¸":
+        elif veg == "¶ôÅä º£ÁöÅ×¸®¾ğ":
             veg='lactoVeg'
-        elif veg == "ì˜¤ë³´ ë² ì§€í…Œë¦¬ì–¸":
+        elif veg == "¿Àº¸ º£ÁöÅ×¸®¾ğ":
             veg='ovoVeg'
-        elif veg == "ë½í†  ì˜¤ë³´ ë² ì§€í…Œë¦¬ì–¸":
+        elif veg == "¶ôÅä ¿Àº¸ º£ÁöÅ×¸®¾ğ":
             veg='lactoOvoVeg'
-        elif veg == "í˜ìŠ¤ì½” ë² ì§€í…Œë¦¬ì–¸":
+        elif veg == "Æä½ºÄÚ º£ÁöÅ×¸®¾ğ":
             veg='pescoVeg'
-        elif veg == "í´ë¡œ ë² ì§€í…Œë¦¬ì–¸":
+        elif veg == "Æú·Î º£ÁöÅ×¸®¾ğ":
             veg='pollpVeg'
-        elif veg == "í”Œë™ì‹œí…Œë¦¬ì–¸":
+        elif veg == "ÇÃ·¢½ÃÅ×¸®¾ğ":
             veg='flex'
 
         # get gender
@@ -226,13 +233,13 @@ class signinWindow(QMainWindow, signinLayout):
 
     def signinmeassage(self):
         msg = QMessageBox()
-        msg.setText("íšŒì› ê°€ì…ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤!")
+        msg.setText("È¸¿ø °¡ÀÔÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù!")
         msg.exec_()
 
     def fillerrormeassage(self):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
-        msg.setText("ì–‘ì‹ì„ ì „ë¶€ ì‘ì„±í•´ ì£¼ì„¸ìš”!!")
+        msg.setText("¾ç½ÄÀ» ÀüºÎ ÀÛ¼ºÇØ ÁÖ¼¼¿ä!!")
         msg.exec_()
 
     def checkidFunction(self):
@@ -246,14 +253,14 @@ class signinWindow(QMainWindow, signinLayout):
 
         if (len(userResult) == 0):
             msg = QMessageBox()
-            msg.setText("ì‚¬ìš© ê°€ëŠ¥í•œ ì•„ì´ë”” ì…ë‹ˆë‹¤! ")
+            msg.setText("»ç¿ë °¡´ÉÇÑ ¾ÆÀÌµğ ÀÔ´Ï´Ù! ")
             msg.exec_()
             ischecked = True
 
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("ì¤‘ë³µëœ ì•„ì´ë”” ì…ë‹ˆë‹¤! ")
+            msg.setText("Áßº¹µÈ ¾ÆÀÌµğ ÀÔ´Ï´Ù! ")
             msg.setWindowTitle("Error")
             msg.exec_()
 
@@ -262,12 +269,12 @@ class signinWindow(QMainWindow, signinLayout):
 
 class initDB():
     createTypeQ = "CREATE TYPE gen AS ENUM ('f', 'm'); "  +\
-                  "CREATE TYPE allergy AS ENUM ('ë‚œë¥˜', 'ìš°ìœ ', 'ë©”ë°€', 'ë•…ì½©', 'ëŒ€ë‘', 'ì‡ ê³ ê¸°',  'ë°€', 'ê³ ë“±ì–´', 'ê²Œ', 'ìƒˆìš°', 'ë¼ì§€ê³ ê¸°', 'ë³µìˆ­ì•„', 'ì˜¤ì§•ì–´', 'í† ë§ˆí† ', 'ì•„í™©ì‚°ë¥˜', 'í˜¸ë‘', 'ì£', 'í‚¤ìœ„', 'ë‹­ê³ ê¸°', 'ì¡°ê°œë¥˜', 'ì°¸ê¹¨'); " + \
+                  "CREATE TYPE allergy AS ENUM ('³­·ù', '¿ìÀ¯', '¸Ş¹Ğ', '¶¥Äá', '´ëµÎ', '¼è°í±â',  '¹Ğ', '°íµî¾î', '°Ô', '»õ¿ì', 'µÅÁö°í±â', 'º¹¼ş¾Æ', '¿ÀÂ¡¾î', 'Åä¸¶Åä', '¾ÆÈ²»ê·ù', 'È£µÎ', 'Àã', 'Å°À§', '´ß°í±â', 'Á¶°³·ù', 'Âü±ú'); " + \
                   "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'); "
 
     createUserQ="CREATE TABLE IF NOT EXISTS UserTable (userID TEXT, password TEXT, gender gen, age INT, allergies allergy[], vName veg, primary key(userID));"
 
-    # cur.execute(createTypeQ) # ì¡´ì¬í•˜ëŠ”ì§€ ì²´í¬í•˜ëŠ” í•¨ìˆ˜ ìƒì„± í•„ìš”
+    # cur.execute(createTypeQ) # Á¸ÀçÇÏ´ÂÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö »ı¼º ÇÊ¿ä
     cur.execute(createUserQ)
     conn.commit()
 

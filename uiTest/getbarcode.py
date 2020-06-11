@@ -1,6 +1,6 @@
 import cv2
-from pyzbar import pyzbar
 
+from pyzbar import pyzbar
 
 def read_barcode():
     cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)

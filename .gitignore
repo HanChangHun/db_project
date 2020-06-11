@@ -2,7 +2,7 @@
 notebooks/service_key.json
 *.pptx
 *.pdf
-
+*.log
 
 MANIFEST
 build

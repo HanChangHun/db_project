@@ -1,8 +1,9 @@
 # changhun's ignore
 notebooks/service_key.json
+notebooks/*.log
 *.pptx
 *.pdf
-
+*.log
 
 MANIFEST
 build

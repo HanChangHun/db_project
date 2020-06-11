@@ -1,19 +1,24 @@
 import sqlalchemy
 import logging
 
+
+file_log, stream_log = True, False
+
 logger = logging.getLogger(__name__)
 
 logging._defaultFormatter = logging.Formatter(u"%(message)s")
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s|%(filename)s:%(lineno)s] >> %(message)s')
 
-streamHandler = logging.StreamHandler()
-fileHandler = logging.FileHandler('./queries.log')
+if file_log:
+    fileHandler = logging.FileHandler('./queries.log', mode='a', encoding='utf-8')
+    logger.addHandler(fileHandler)
+    fileHandler.setFormatter(formatter)
 
-streamHandler.setFormatter(formatter)
-fileHandler.setFormatter(formatter)
+if stream_log:
+    streamHandler = logging.StreamHandler()
+    streamHandler.setFormatter(formatter)
+    logger.addHandler(streamHandler)
 
-logger.addHandler(streamHandler)
-logger.addHandler(fileHandler)
 logger.setLevel(level=logging.INFO)
 
 
@@ -35,19 +40,21 @@ def change_query_str(query):
     return query.replace('\n', ' ').strip()
 
 
-def execute_query(conn, query):
+def execute_query(conn, query, log=True):
     try:
         conn.execute(query)
-        logger.info("COMPLETE QUERY : {}".format(change_query_str(query)))
+        if log:
+            logger.info("COMPLETE QUERY : {}".format(change_query_str(query)))
     except Exception as e:
-        logger.info("FAIL QUERY : {}\nERROR : {}".format(change_query_str(query), e))
+        if log:
+            logger.info("FAIL QUERY : {}\nERROR : {}".format(change_query_str(query), e))
 
-        
+
 def execute_queries(conn, queries):
     for q in queries.split(';')[:-1]:
         execute_query(conn, q)
 
-        
+
 def initializ_db(conn):
     for table in conn.table_names():
         drop_query = "drop table {}".format(table)

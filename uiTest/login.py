@@ -1,21 +1,17 @@
-# -*- coding: euc-kr -*-
-
-
-from getbarcode import read_barcode
+import sys
 
 from PyQt5 import uic, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox
 import urllib.request
-
 import psycopg2 as pg2
-import sys
+from read_barcode import read_barcode
 
 mainLayout = uic.loadUiType("mainWindow.ui")[0]
 signinLayout = uic.loadUiType("signIn.ui")[0]
 initialLayout = uic.loadUiType("initialLayout.ui")[0]
 
-conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
+conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="1234", port="5432")
 cur = conn.cursor()
 
 global session # login session
@@ -115,7 +111,7 @@ class mainWindow(QMainWindow, mainLayout):
 
 class signinWindow(QMainWindow, signinLayout):
     global ischecked
-    ischecked= False # check overlap id
+    ischecked = False # check overlap id
 
     def __init__(self, parent=None):
         super(signinWindow, self).__init__(parent)
@@ -237,11 +233,9 @@ class signinWindow(QMainWindow, signinLayout):
             else:
                 adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
                          age) + ", '" + allstr + "', '" + veg + "')"
-
             print(adduserQ)
             cur.execute(adduserQ)
             conn.commit()
-
             self.signinmeassage()
             self.close()
         else:

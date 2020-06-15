@@ -80,7 +80,7 @@
        <widget class="QPlainTextEdit" name="searchTxt"/>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="searchBtn">
         <property name="text">
          <string>검색</string>
         </property>
@@ -116,7 +116,7 @@
      <property name="title">
       <string>검색 결과</string>
      </property>
-     <widget class="QListWidget" name="listWidget">
+     <widget class="QListWidget" name="resultList">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -131,8 +131,8 @@
        <rect>
         <x>20</x>
         <y>40</y>
-        <width>251</width>
-        <height>221</height>
+        <width>261</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="text">
@@ -157,14 +157,38 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>400</y>
+       <y>370</y>
        <width>331</width>
-       <height>161</height>
+       <height>191</height>
       </rect>
      </property>
      <property name="title">
       <string>먹어도 돼요?</string>
      </property>
+     <widget class="QWidget" name="verticalLayoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>19</x>
+        <y>29</y>
+        <width>281</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="resultImg"/>
+     </widget>
+     <widget class="QLabel" name="resultText">
+      <property name="geometry">
+       <rect>
+        <x>19</x>
+        <y>125</y>
+        <width>281</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="groupBox_4">
      <property name="geometry">
@@ -172,7 +196,7 @@
        <x>20</x>
        <y>30</y>
        <width>331</width>
-       <height>361</height>
+       <height>331</height>
       </rect>
      </property>
      <property name="title">
@@ -181,13 +205,53 @@
      <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>19</x>
-        <y>39</y>
+        <x>20</x>
+        <y>30</y>
         <width>291</width>
-        <height>141</height>
+        <height>121</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="imageLayout"/>
+      <layout class="QVBoxLayout" name="productImg"/>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>160</y>
+        <width>291</width>
+        <height>151</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="productName">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="productCompany">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="productAllergy">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="produntmtrl">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>

@@ -80,8 +80,10 @@ class initWindow(QMainWindow, initialLayout):
 
 
 class mainWindow(QMainWindow, mainLayout):
-    global session
+    global session, listview
+
     def  __init__(self, parent=None):
+        global listview
         super(mainWindow, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle('Main Winow')
@@ -91,6 +93,16 @@ class mainWindow(QMainWindow, mainLayout):
 
         self.showID.setText(session)
         self.logoutBtn.clicked.connect(self.logoutFunction)
+
+        self.searchBtn.clicked.connect(self.searchFunction)
+
+        listview = self.resultList
+
+    def searchFunction(self):
+        listview.setTextUp('제품명')
+        listview.setTextDown('제품 회사명')
+
+
 
     def read_barcode(self):
         barcodes = read_barcode()
@@ -138,7 +150,7 @@ class signinWindow(QMainWindow, signinLayout):
 
         # get veg
         # 'vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'
-        if veg == '해당 없음':
+        if veg == '해당없음':
             veg=''
         elif veg == '비건':
             veg='vegan'
@@ -151,9 +163,7 @@ class signinWindow(QMainWindow, signinLayout):
         elif veg == "페스코 베지테리언":
             veg='pescoVeg'
         elif veg == "폴로 베지테리언":
-            veg='pollpVeg'
-        elif veg == "플랙시테리언":
-            veg='flex'
+            veg='polloVeg'
 
         # get gender
         if self.femaleBtn.isChecked():
@@ -221,11 +231,17 @@ class signinWindow(QMainWindow, signinLayout):
         allstr = allstr.replace("'", "")
 
         if isfilled and ischecked :
-            adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
+            if veg=='':
+                adduserQ =  "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
+                         age) + ", '" + allstr + "')"
+            else:
+                adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
                          age) + ", '" + allstr + "', '" + veg + "')"
+
             print(adduserQ)
             cur.execute(adduserQ)
             conn.commit()
+
             self.signinmeassage()
             self.close()
         else:
@@ -270,7 +286,7 @@ class signinWindow(QMainWindow, signinLayout):
 class initDB():
     createTypeQ = "CREATE TYPE gen AS ENUM ('f', 'm'); "  +\
                   "CREATE TYPE allergy AS ENUM ('난류', '우유', '메밀', '땅콩', '대두', '쇠고기',  '밀', '고등어', '게', '새우', '돼지고기', '복숭아', '오징어', '토마토', '아황산류', '호두', '잣', '키위', '닭고기', '조개류', '참깨'); " + \
-                  "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'); "
+                  "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg'); "
 
     createUserQ="CREATE TABLE IF NOT EXISTS UserTable (userID TEXT, password TEXT, gender gen, age INT, allergies allergy[], vName veg, primary key(userID));"
 

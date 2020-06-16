@@ -1,20 +1,27 @@
+# coding=utf8
+
 import sys
 
-from PyQt5 import uic, QtGui, QtWidgets
+from PyQt5 import uic, QtWidgets, QtCore
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5 import QtGui
 import urllib.request
 import psycopg2 as pg2
-from read_barcode import read_barcode
+from getbarcode import read_barcode
 
 mainLayout = uic.loadUiType("mainWindow.ui")[0]
 signinLayout = uic.loadUiType("signIn.ui")[0]
 initialLayout = uic.loadUiType("initialLayout.ui")[0]
 
-conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="1234", port="5432")
+conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
 cur = conn.cursor()
 
 global session # login session
+global searcharr
+searcharr=[]
 
 class initWindow(QMainWindow, initialLayout):
     def __init__(self) :
@@ -34,7 +41,7 @@ class initWindow(QMainWindow, initialLayout):
 
     def loginmessegeFuntion(self):
         msg = QMessageBox()
-        msg.setText("¹İ°©½À´Ï´Ù!! ")
+        msg.setText("ë°˜ê°‘ìŠµë‹ˆë‹¤!! ")
         msg.exec_()
 
     def loginFunction(self):
@@ -53,7 +60,7 @@ class initWindow(QMainWindow, initialLayout):
             if(len(userResult)== 0):
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
-                msg.setText("¾ÆÀÌµğ ºñ¹Ğ¹øÈ£¸¦ È®ÀÎÇØÁÖ¼¼¿ä!!")
+                msg.setText("ì•„ì´ë”” ë¹„ë°€ë²ˆí˜¸ë¥¼ í™•ì¸í•´ì£¼ì„¸ìš”!!")
                 msg.setWindowTitle("Error")
                 msg.exec_()
 
@@ -69,7 +76,7 @@ class initWindow(QMainWindow, initialLayout):
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("¾ÆÀÌµğ ºñ¹Ğ¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä!! ")
+            msg.setText("ì•„ì´ë”” ë¹„ë°€ë²ˆí˜¸ë¥¼ ì…ë ¥í•´ì£¼ì„¸ìš”!! ")
             msg.setWindowTitle("Error")
             msg.exec_()
         # if it's right open main window
@@ -77,9 +84,9 @@ class initWindow(QMainWindow, initialLayout):
 
 class mainWindow(QMainWindow, mainLayout):
     global session, listview
+    global searchArr
 
     def  __init__(self, parent=None):
-        global listview
         super(mainWindow, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle('Main Winow')
@@ -91,18 +98,94 @@ class mainWindow(QMainWindow, mainLayout):
         self.logoutBtn.clicked.connect(self.logoutFunction)
 
         self.searchBtn.clicked.connect(self.searchFunction)
+        self.resultList.itemClicked.connect(self.showResultFunction)
+        self.searchBBtn.clicked.connect(self.searchBarcodeFunction)
+
+    def showResultFunction(self):
+        global searcharr, listview
+
+        if listview.currentItem().text()== "ê²€ìƒ‰ ê²°ê³¼ê°€ ì—†ìŠµë‹ˆë‹¤. ":
+            return
+        else:
+            index = listview.selectionModel().currentIndex().row()
+
+            url = searcharr[index][3]
+            data = urllib.request.urlopen(url).read()
+            pixmap = QPixmap()
+            pixmap.loadFromData(data)
+
+            pixmap.scaled(self.productImg.width(), self.productImg.height(), QtCore.Qt.KeepAspectRatio)
+
+            self.productImg.setPixmap(pixmap) # url ì œí’ˆ ì‚¬ì§„
+            self.productName.setText("ì œí’ˆëª…: "+searcharr[index][0])
+            self.productAllergy.setText("ì•ŒëŸ¬ì§€ ìœ ë°œ ë¬¼ì§ˆ:" + searcharr[index][2])
+            self.productNutrient.setText("ì˜ì–‘ì •ë³´: " + searcharr[index][4])
+            self.productmtrl.setText("ì›ì¬ë£Œ: "+searcharr[index][1])
+
+    def searchBarcodeFunction(self):
+        global listview, searcharr
+
+        searchtext = self.searchBTxt.text()
+
+        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient FROM foodinfo where barcode like '%" + searchtext + "%';"
+        cur.execute(searchQ)
+        searchResult = cur.fetchall()
 
         listview = self.resultList
+        listview.clear()
+        listview.setIconSize(QSize(60, 60))
+        listview.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel);
+
+        if len(searchResult) == 0:
+            listview.addItem('ê²€ìƒ‰ ê²°ê³¼ê°€ ì—†ìŠµë‹ˆë‹¤. ')
+        else:
+            searcharr.clear()
+            for i in range(0, len(searchResult)):
+                searcharr.append(searchResult[i])
+
+                listview.addItem(searchResult[i][0])
+
+                url = searchResult[i][3]
+                data = urllib.request.urlopen(url).read()
+                pixmap = QPixmap()
+                pixmap.loadFromData(data)
+                icon = QIcon(pixmap)
+                listview.item(i).setIcon(icon)
+
 
     def searchFunction(self):
-        listview.setTextUp('Á¦Ç°¸í')
-        listview.setTextDown('Á¦Ç° È¸»ç¸í')
+        global listview, searcharr
 
+        searchtext=self.searchTxt.text()
 
+        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient FROM foodinfo where prdlstname like '%" + searchtext + "%';"
+        cur.execute(searchQ)
+        searchResult = cur.fetchall()
+
+        listview = self.resultList
+        listview.clear()
+        listview.setIconSize(QSize(60, 60))
+        listview.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel);
+
+        if len(searchResult)== 0:
+            listview.addItem('ê²€ìƒ‰ ê²°ê³¼ê°€ ì—†ìŠµë‹ˆë‹¤. ')
+        else:
+            searcharr.clear()
+            for i in range (0, len(searchResult)):
+                searcharr.append(searchResult[i])
+
+                listview.addItem(searchResult[i][0])
+
+                url = searchResult[i][3]
+                data = urllib.request.urlopen(url).read()
+                pixmap = QPixmap()
+                pixmap.loadFromData(data)
+                icon = QIcon(pixmap)
+                listview.item(i).setIcon(icon)
 
     def read_barcode(self):
         barcodes = read_barcode()
-        self.temp_codes.setText('{}'.format(barcodes))
+        self.searchBTxt.setText('{}'.format(barcodes))
 
     def logoutFunction(self):
         global session
@@ -146,19 +229,19 @@ class signinWindow(QMainWindow, signinLayout):
 
         # get veg
         # 'vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'
-        if veg == 'ÇØ´ç¾øÀ½':
+        if veg == 'í•´ë‹¹ì—†ìŒ':
             veg=''
-        elif veg == 'ºñ°Ç':
+        elif veg == 'ë¹„ê±´':
             veg='vegan'
-        elif veg == "¶ôÅä º£ÁöÅ×¸®¾ğ":
+        elif veg == "ë½í†  ë² ì§€í…Œë¦¬ì–¸":
             veg='lactoVeg'
-        elif veg == "¿Àº¸ º£ÁöÅ×¸®¾ğ":
+        elif veg == "ì˜¤ë³´ ë² ì§€í…Œë¦¬ì–¸":
             veg='ovoVeg'
-        elif veg == "¶ôÅä ¿Àº¸ º£ÁöÅ×¸®¾ğ":
+        elif veg == "ë½í†  ì˜¤ë³´ ë² ì§€í…Œë¦¬ì–¸":
             veg='lactoOvoVeg'
-        elif veg == "Æä½ºÄÚ º£ÁöÅ×¸®¾ğ":
+        elif veg == "í˜ìŠ¤ì½” ë² ì§€í…Œë¦¬ì–¸":
             veg='pescoVeg'
-        elif veg == "Æú·Î º£ÁöÅ×¸®¾ğ":
+        elif veg == "í´ë¡œ ë² ì§€í…Œë¦¬ì–¸":
             veg='polloVeg'
 
         # get gender
@@ -243,13 +326,13 @@ class signinWindow(QMainWindow, signinLayout):
 
     def signinmeassage(self):
         msg = QMessageBox()
-        msg.setText("È¸¿ø °¡ÀÔÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù!")
+        msg.setText("íšŒì› ê°€ì…ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤!")
         msg.exec_()
 
     def fillerrormeassage(self):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
-        msg.setText("¾ç½ÄÀ» ÀüºÎ ÀÛ¼ºÇØ ÁÖ¼¼¿ä!!")
+        msg.setText("ì–‘ì‹ì„ ì „ë¶€ ì‘ì„±í•´ ì£¼ì„¸ìš”!!")
         msg.exec_()
 
     def checkidFunction(self):
@@ -263,14 +346,14 @@ class signinWindow(QMainWindow, signinLayout):
 
         if (len(userResult) == 0):
             msg = QMessageBox()
-            msg.setText("»ç¿ë °¡´ÉÇÑ ¾ÆÀÌµğ ÀÔ´Ï´Ù! ")
+            msg.setText("ì‚¬ìš© ê°€ëŠ¥í•œ ì•„ì´ë”” ì…ë‹ˆë‹¤! ")
             msg.exec_()
             ischecked = True
 
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
-            msg.setText("Áßº¹µÈ ¾ÆÀÌµğ ÀÔ´Ï´Ù! ")
+            msg.setText("ì¤‘ë³µëœ ì•„ì´ë”” ì…ë‹ˆë‹¤! ")
             msg.setWindowTitle("Error")
             msg.exec_()
 
@@ -279,12 +362,12 @@ class signinWindow(QMainWindow, signinLayout):
 
 class initDB():
     createTypeQ = "CREATE TYPE gen AS ENUM ('f', 'm'); "  +\
-                  "CREATE TYPE allergy AS ENUM ('³­·ù', '¿ìÀ¯', '¸Ş¹Ğ', '¶¥Äá', '´ëµÎ', '¼è°í±â',  '¹Ğ', '°íµî¾î', '°Ô', '»õ¿ì', 'µÅÁö°í±â', 'º¹¼ş¾Æ', '¿ÀÂ¡¾î', 'Åä¸¶Åä', '¾ÆÈ²»ê·ù', 'È£µÎ', 'Àã', 'Å°À§', '´ß°í±â', 'Á¶°³·ù', 'Âü±ú'); " + \
+                  "CREATE TYPE allergy AS ENUM ('ë‚œë¥˜', 'ìš°ìœ ', 'ë©”ë°€', 'ë•…ì½©', 'ëŒ€ë‘', 'ì‡ ê³ ê¸°',  'ë°€', 'ê³ ë“±ì–´', 'ê²Œ', 'ìƒˆìš°', 'ë¼ì§€ê³ ê¸°', 'ë³µìˆ­ì•„', 'ì˜¤ì§•ì–´', 'í† ë§ˆí† ', 'ì•„í™©ì‚°ë¥˜', 'í˜¸ë‘', 'ì£', 'í‚¤ìœ„', 'ë‹­ê³ ê¸°', 'ì¡°ê°œë¥˜', 'ì°¸ê¹¨'); " + \
                   "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg'); "
 
     createUserQ="CREATE TABLE IF NOT EXISTS UserTable (userID TEXT, password TEXT, gender gen, age INT, allergies allergy[], vName veg, primary key(userID));"
 
-    # cur.execute(createTypeQ) # Á¸ÀçÇÏ´ÂÁö Ã¼Å©ÇÏ´Â ÇÔ¼ö »ı¼º ÇÊ¿ä
+    # cur.execute(createTypeQ) # ì¡´ì¬í•˜ëŠ”ì§€ ì²´í¬í•˜ëŠ” í•¨ìˆ˜ ìƒì„± í•„ìš”
     cur.execute(createUserQ)
     conn.commit()
 

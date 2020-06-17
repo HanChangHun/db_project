@@ -15,69 +15,44 @@ CREATE TABLE FoodInfo
  primary key(prdlstReportNo)
 );
 
-CREATE TABLE PrdKinds
+CREATE TABLE AllergyPrdKind
 (
  prdKind TEXT,
- superPrdKind TEXT,
+ allergy allergy,
+ isCrossReact BOOLEAN,
+ probablility numeric(2,1),
  primary key(prdKind)
 );
 
-CREATE TABLE RawMtrls
+CREATE TABLE AllergyRawMtrl
 (
- rawMtrl TEXT, 
- superRawMtrl TEXT,
+ rawMtrl TEXT,
+ allergy allergy,
+ isCrossReact BOOLEAN,
+ probablility numeric(2,1),
  primary key(rawMtrl)
 );
 
-CREATE TABLE AllergyPrdKinds
+CREATE TABLE VegPrdKind
 (
- allergy_kind TEXT,
- superPrdKind TEXT,
- isCrossReact TEXT,
- ParentAllergy TEXT,
- probablility TEXT,
- primary key(allergy_kind)
-
+ prdKind TEXT,
+ vegan BOOLEAN,
+ lactoVeg BOOLEAN,
+ ovoVeg BOOLEAN,
+ lactoOvoVeg BOOLEAN,
+ pescoVeg BOOLEAN,
+ polloVeg BOOLEAN,
+ primary key(prdKind)
 );
 
-CREATE TABLE VegRestrictPrdKind
+CREATE TABLE VegRawMtrl
 (
- veg_kind TEXT,
- superPrdKind TEXT,
- primary key(veg_kind)
-);
-
-CREATE TABLE AllergyRawMtrls
-(
- allergy_kind TEXT,
- superRawMtrl TEXT,
- isCrossReact TEXT,
- ParentAllergy TEXT,
- probablility TEXT,
- primary key(allergy_kind)
-
-);
-
-CREATE TABLE VegRestrictRawMtrls
-(
- veg_kind TEXT,
- superRawMtrl TEXT,
- primary key(veg_kind)
-);
-
-CREATE TABLE UserTable (
- userID TEXT,
- name TEXT,
- gender gen,
- age INT,
- allergy allergy[],
- vName veg,
- primary key(userID)
-);
-
-CREATE TABLE DietManage (
- userID TEXT,
- date DATE NOT NULL DEFAULT CURRENT_DATE,
- eatenFood VARCHAR(255)[],
- primary key(userID, date)
+ rawMtrl TEXT,
+ vegan BOOLEAN,
+ lactoVeg BOOLEAN,
+ ovoVeg BOOLEAN,
+ lactoOvoVeg BOOLEAN,
+ pescoVeg BOOLEAN,
+ polloVeg BOOLEAN,
+ primary key(rawMtrl)
 );

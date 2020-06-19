@@ -64,7 +64,6 @@ class initWindow(QMainWindow, initialLayout):
 
             print(userResult)
 
-
             if(len(userResult)== 0):
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
@@ -77,7 +76,7 @@ class initWindow(QMainWindow, initialLayout):
             else:
                 self.loginmessegeFuntion()
                 session=id
-                sessionInfo=[userResult[5], userResult[6]]
+                sessionInfo=[userResult[0][4], userResult[0][5]]
                 mainWindow(self)
                 self.inputID_text.setText("")
                 self.inputPS_text.setText("")
@@ -112,8 +111,8 @@ class mainWindow(QMainWindow, mainLayout):
 
         self.searchBBtn.clicked.connect(self.searchBarcodeFunction)
 
-        self.alterAlist.currentIndexChanged.connect()
-        self.alterVlist.currentIndexChanged.connect()
+        # self.alterAlist.currentIndexChanged.connect()
+        # self.alterVlist.currentIndexChanged.connect()
 
 
     def showResultFunction(self): # 현재 에러
@@ -197,7 +196,6 @@ class mainWindow(QMainWindow, mainLayout):
                 icon = QIcon(pixmap)
                 listview.item(i).setIcon(icon)
 
-
     def searchFunction(self):
         global listview, searcharr
 
@@ -235,6 +233,7 @@ class mainWindow(QMainWindow, mainLayout):
     def logoutFunction(self):
         global session
         session = ''
+        sessionInfo.clear()
         self.close()
 
 class signinWindow(QMainWindow, signinLayout):
@@ -275,7 +274,7 @@ class signinWindow(QMainWindow, signinLayout):
         # get veg
         # 'vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'
         if veg == '해당없음':
-            veg=''
+            veg='nan'
         elif veg == '비건':
             veg='vegan'
         elif veg == "락토 베지테리언":
@@ -303,7 +302,7 @@ class signinWindow(QMainWindow, signinLayout):
         # get allergey
         allegy=[]
         if self.none_check.isChecked():
-            print('no allergy')
+            print('nan')
         else:
             if self.bean_check.isChecked():
                 allegy.append(self.bean_check.text())
@@ -355,12 +354,8 @@ class signinWindow(QMainWindow, signinLayout):
         allstr = allstr.replace("'", "")
 
         if isfilled and ischecked :
-            if veg=='':
-                adduserQ =  "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
-                         age) + ", '" + allstr + "')"
-            else:
-                adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
-                         age) + ", '" + allstr + "', '" + veg + "')"
+
+            adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(age) + ", '" + allstr + "', '" + veg + "')"
             print(adduserQ)
             cur.execute(adduserQ)
             conn.commit()
@@ -406,14 +401,9 @@ class signinWindow(QMainWindow, signinLayout):
 
 
 class initDB():
-    createTypeQ = "CREATE TYPE gen AS ENUM ('f', 'm'); "  +\
-                  "CREATE TYPE allergy AS ENUM ('난류', '우유', '메밀', '땅콩', '대두', '쇠고기',  '밀', '고등어', '게', '새우', '돼지고기', '복숭아', '오징어', '토마토', '아황산류', '호두', '잣', '키위', '닭고기', '조개류', '참깨'); " + \
-                  "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg'); "
-
     createUserQ="CREATE TABLE IF NOT EXISTS UserTable (userID TEXT, password TEXT, gender gen, age INT, allergies allergy[], vName veg, primary key(userID));"
 
-    # cur.execute(createTypeQ) # 존재하는지 체크하는 함수 생성 필요
-    cur.execute(createUserQ)
+    cur.execute(createUserQ, createUserQ)
     conn.commit()
 
 if __name__ == "__main__" :

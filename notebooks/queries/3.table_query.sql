@@ -20,6 +20,7 @@ CREATE TABLE AllergyPrdKind
  prdKind TEXT,
  allergy allergy,
  isCrossReact BOOLEAN,
+ parentAllergy allergy,
  probablility numeric(2,1),
  primary key(prdKind)
 );
@@ -29,6 +30,7 @@ CREATE TABLE AllergyRawMtrl
  rawMtrl TEXT,
  allergy allergy,
  isCrossReact BOOLEAN,
+ parentAllergy allergy,
  probablility numeric(2,1),
  primary key(rawMtrl)
 );

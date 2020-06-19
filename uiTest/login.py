@@ -274,7 +274,7 @@ class signinWindow(QMainWindow, signinLayout):
         # get veg
         # 'vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'
         if veg == '해당없음':
-            veg=''
+            veg='nan'
         elif veg == '비건':
             veg='vegan'
         elif veg == "락토 베지테리언":
@@ -302,7 +302,7 @@ class signinWindow(QMainWindow, signinLayout):
         # get allergey
         allegy=[]
         if self.none_check.isChecked():
-            print('no allergy')
+            print('nan')
         else:
             if self.bean_check.isChecked():
                 allegy.append(self.bean_check.text())
@@ -354,12 +354,8 @@ class signinWindow(QMainWindow, signinLayout):
         allstr = allstr.replace("'", "")
 
         if isfilled and ischecked :
-            if veg=='':
-                adduserQ =  "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
-                         age) + ", '" + allstr + "')"
-            else:
-                adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
-                         age) + ", '" + allstr + "', '" + veg + "')"
+
+            adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(age) + ", '" + allstr + "', '" + veg + "')"
             print(adduserQ)
             cur.execute(adduserQ)
             conn.commit()

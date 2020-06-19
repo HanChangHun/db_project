@@ -16,7 +16,11 @@ mainLayout = uic.loadUiType("mainWindow.ui")[0]
 signinLayout = uic.loadUiType("signIn.ui")[0]
 initialLayout = uic.loadUiType("initialLayout.ui")[0]
 
-conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
+if sys.platform.lower() == 'darwin':
+    conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
+elif sys.platform == 'win32':
+    conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="1234", port="5432")
+
 cur = conn.cursor()
 
 global session # login session

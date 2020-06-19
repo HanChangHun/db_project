@@ -19,6 +19,9 @@ CREATE TABLE PrdKinds
 (
  prdKind TEXT,
  superPrdKind TEXT,
+ isCrossReact BOOLEAN,
+ ParentAllergy TEXT[],
+ probability numeric(2,1),
  primary key(prdKind)
 );
 
@@ -26,58 +29,37 @@ CREATE TABLE RawMtrls
 (
  rawMtrl TEXT, 
  superRawMtrl TEXT,
+ isCrossReact BOOLEAN,
+ ParentAllergy TEXT[],
+ probability numeric(2,1),
  primary key(rawMtrl)
 );
 
 CREATE TABLE AllergyPrdKinds
 (
- allergy_kind TEXT,
- superPrdKind TEXT,
- isCrossReact TEXT,
- ParentAllergy TEXT,
- probablility TEXT,
+ allergy_kind allergy,
+ superPrdKind TEXT[],
  primary key(allergy_kind)
-
 );
 
 CREATE TABLE VegRestrictPrdKind
 (
- veg_kind TEXT,
+ veg_kind veg,
  superPrdKind TEXT,
  primary key(veg_kind)
 );
 
 CREATE TABLE AllergyRawMtrls
 (
- allergy_kind TEXT,
+ allergy_kind allergy,
  superRawMtrl TEXT,
- isCrossReact TEXT,
- ParentAllergy TEXT,
- probablility TEXT,
  primary key(allergy_kind)
 
 );
 
 CREATE TABLE VegRestrictRawMtrls
 (
- veg_kind TEXT,
- superRawMtrl TEXT,
+ veg_kind veg,
+ RawMtrl TEXT,
  primary key(veg_kind)
-);
-
-CREATE TABLE UserTable (
- userID TEXT,
- name TEXT,
- gender gen,
- age INT,
- allergy allergy[],
- vName veg,
- primary key(userID)
-);
-
-CREATE TABLE DietManage (
- userID TEXT,
- date DATE NOT NULL DEFAULT CURRENT_DATE,
- eatenFood VARCHAR(255)[],
- primary key(userID, date)
 );

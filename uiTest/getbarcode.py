@@ -6,7 +6,7 @@ def read_barcode():
     cv2.namedWindow("barcode scan")
     cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
 
-    barcode_set = set()
+    barcode_res = 0
     while True:
         barcodeData = ' '
         x, y, w, h = 0, 0, 0, 0
@@ -19,7 +19,7 @@ def read_barcode():
 
             barcodeData = barcode.data.decode("utf-8")
             cv2.putText(frame, barcodeData, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            barcode_set.add(barcodeData)
+            barcode_res = barcodeData
             print("[INFO] barcode: {}".format(barcodeData))
 
         cv2.imshow('cam', frame)
@@ -28,4 +28,4 @@ def read_barcode():
             cv2.destroyAllWindows()
             break
 
-    return barcode_set
+    return barcode_res

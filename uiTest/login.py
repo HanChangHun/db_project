@@ -1,11 +1,16 @@
+# coding=utf8
+
 import sys
 
-from PyQt5 import uic, QtGui, QtWidgets
+from PyQt5 import uic, QtWidgets, QtCore
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5 import QtGui
 import urllib.request
 import psycopg2 as pg2
-from read_barcode import read_barcode
+from getbarcode import read_barcode
 
 mainLayout = uic.loadUiType("mainWindow.ui")[0]
 signinLayout = uic.loadUiType("signIn.ui")[0]
@@ -15,6 +20,11 @@ conn = pg2.connect(host="localhost", database="projectDB", user="postgres", pass
 cur = conn.cursor()
 
 global session # login session
+global searcharr
+searcharr=[]
+
+global sessionInfo
+sessionInfo=[] # allergy, vegiterrian
 
 class initWindow(QMainWindow, initialLayout):
     def __init__(self) :
@@ -38,7 +48,7 @@ class initWindow(QMainWindow, initialLayout):
         msg.exec_()
 
     def loginFunction(self):
-        global session
+        global session, sessionInfo
         id = self.inputID_text.text()
         pw = self.inputPS_text.text()
 
@@ -49,6 +59,7 @@ class initWindow(QMainWindow, initialLayout):
             userResult = cur.fetchall()
 
             print(userResult)
+
 
             if(len(userResult)== 0):
                 msg = QMessageBox()
@@ -61,12 +72,11 @@ class initWindow(QMainWindow, initialLayout):
                 self.inputPS_text.setText("")
             else:
                 self.loginmessegeFuntion()
+                session=id
+                sessionInfo=[userResult[5], userResult[6]]
+                mainWindow(self)
                 self.inputID_text.setText("")
                 self.inputPS_text.setText("")
-
-                session = id
-                mainWindow(self)
-
 
         else:
             msg = QMessageBox()
@@ -78,27 +88,150 @@ class initWindow(QMainWindow, initialLayout):
 
 
 class mainWindow(QMainWindow, mainLayout):
-    global session
+    global session, listview
+    global searchArr
+    global itemAllergy, itemRawmtrl
 
-    def __init__(self, parent=None):
+    def  __init__(self, parent=None):
         super(mainWindow, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle('Main Winow')
 
         self.show()
         self.pushButton_2.clicked.connect(self.read_barcode)
+
         self.showID.setText(session)
         self.logoutBtn.clicked.connect(self.logoutFunction)
+
+        self.searchBtn.clicked.connect(self.searchFunction)
+        self.resultList.itemClicked.connect(self.showResultFunction)
+
+        self.searchBBtn.clicked.connect(self.searchBarcodeFunction)
+
+        self.alterAlist.currentIndexChanged.connect()
+        self.alterVlist.currentIndexChanged.connect()
+
+
+    def showResultFunction(self): # 현재 에러
+        global searcharr, listview
+        global itemAllergy, itemRawmtrl
+
+        if listview.currentItem().text()== "검색 결과가 없습니다. ":
+            return
+        else:
+            index = listview.selectionModel().currentIndex().row()
+
+            url = searcharr[index][3]
+            data = urllib.request.urlopen(url).read()
+            pixmap = QPixmap()
+            pixmap.loadFromData(data)
+
+            pixmap.scaled(self.productImg.width(), self.productImg.height(), QtCore.Qt.KeepAspectRatio)
+
+            self.productImg.setPixmap(pixmap) # url 제품 사진
+            self.productImg.setScaledContents(True)
+            self.productImg.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
+            self.productName.setText("제품명: "+searcharr[index][0])
+            self.productAllergy.setText("알러지 유발 물질:" + searcharr[index][2])
+            self.productNutrient.setText("영양정보: " + searcharr[index][4])
+            self.productmtrl.setText("원재료: "+searcharr[index][1])
+
+            itemAllergy = searcharr[index][2]
+            itemRawmtrl = searcharr[index][1]
+
+            self.showpersonalResult()
+
+    def showpersonalResult(self):
+        global itemAllergy, itemRawmtrl
+
+
+        qPixmapVar = QPixmap()
+        qPixmapVar.load("yes.png")
+        qPixmapVar = qPixmapVar.scaled(81, 71)
+        self.resultVImg.setPixmap(qPixmapVar)
+
+        self.resultVText.setText("이 먹을 수 없는 "+"가 들어있어요! ") #
+
+        qPixmapVar = QPixmap()
+        qPixmapVar.load("no.png")
+        qPixmapVar = qPixmapVar.scaled(81, 71)
+        self.resultAImg.setPixmap(qPixmapVar)
+
+        # 대체식품 검색 후 listview 선택하기. ()
+        for i in range (0, len(searcharr)):
+            self.alterAlist.addItem(searcharr[i][0]);
+        # self.showResultFunction()
+
+    def searchBarcodeFunction(self):
+        global listview, searcharr
+
+        searchtext = self.searchBTxt.text()
+
+        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient FROM foodinfo where barcode like '%" + searchtext + "%';"
+        cur.execute(searchQ)
+        searchResult = cur.fetchall()
+
+        listview = self.resultList
+        listview.clear()
+        listview.setIconSize(QSize(60, 60))
+        listview.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel);
+
+        if len(searchResult) == 0:
+            listview.addItem('검색 결과가 없습니다. ')
+        else:
+            searcharr.clear()
+            for i in range(0, len(searchResult)):
+                searcharr.append(searchResult[i])
+
+                listview.addItem(searchResult[i][0])
+
+                url = searchResult[i][3]
+                data = urllib.request.urlopen(url).read()
+                pixmap = QPixmap()
+                pixmap.loadFromData(data)
+                icon = QIcon(pixmap)
+                listview.item(i).setIcon(icon)
+
+
+    def searchFunction(self):
+        global listview, searcharr
+
+        searchtext=self.searchTxt.text()
+
+        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient FROM foodinfo where prdlstname like '%" + searchtext + "%';"
+        cur.execute(searchQ)
+        searchResult = cur.fetchall()
+
+        listview = self.resultList
+        listview.clear()
+        listview.setIconSize(QSize(60, 60))
+        listview.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel);
+
+        if len(searchResult)== 0:
+            listview.addItem('검색 결과가 없습니다. ')
+        else:
+            searcharr.clear()
+            for i in range (0, len(searchResult)):
+                searcharr.append(searchResult[i])
+
+                listview.addItem(searchResult[i][0])
+
+                url = searchResult[i][3]
+                data = urllib.request.urlopen(url).read()
+                pixmap = QPixmap()
+                pixmap.loadFromData(data)
+                icon = QIcon(pixmap)
+                listview.item(i).setIcon(icon)
+
+    def read_barcode(self):
+        barcodes = read_barcode()
+        self.searchBTxt.setText('{}'.format(barcodes))
 
     def logoutFunction(self):
         global session
         session = ''
         self.close()
-
-    def read_barcode(self):
-        barcodes = read_barcode()
-        self.temp_codes.setText('{}'.format(barcodes))
-
 
 class signinWindow(QMainWindow, signinLayout):
     global ischecked
@@ -120,6 +253,7 @@ class signinWindow(QMainWindow, signinLayout):
         self.close()
 
     def signinFunction(self):
+        global isfilled
         # check fully filled
         isfilled = False
 
@@ -136,7 +270,7 @@ class signinWindow(QMainWindow, signinLayout):
 
         # get veg
         # 'vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'
-        if veg == '해당 없음':
+        if veg == '해당없음':
             veg=''
         elif veg == '비건':
             veg='vegan'
@@ -149,9 +283,7 @@ class signinWindow(QMainWindow, signinLayout):
         elif veg == "페스코 베지테리언":
             veg='pescoVeg'
         elif veg == "폴로 베지테리언":
-            veg='pollpVeg'
-        elif veg == "플랙시테리언":
-            veg='flex'
+            veg='polloVeg'
 
         # get gender
         if self.femaleBtn.isChecked():
@@ -219,7 +351,11 @@ class signinWindow(QMainWindow, signinLayout):
         allstr = allstr.replace("'", "")
 
         if isfilled and ischecked :
-            adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
+            if veg=='':
+                adduserQ =  "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
+                         age) + ", '" + allstr + "')"
+            else:
+                adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(
                          age) + ", '" + allstr + "', '" + veg + "')"
             print(adduserQ)
             cur.execute(adduserQ)
@@ -268,7 +404,7 @@ class signinWindow(QMainWindow, signinLayout):
 class initDB():
     createTypeQ = "CREATE TYPE gen AS ENUM ('f', 'm'); "  +\
                   "CREATE TYPE allergy AS ENUM ('난류', '우유', '메밀', '땅콩', '대두', '쇠고기',  '밀', '고등어', '게', '새우', '돼지고기', '복숭아', '오징어', '토마토', '아황산류', '호두', '잣', '키위', '닭고기', '조개류', '참깨'); " + \
-                  "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg', 'flex'); "
+                  "CREATE TYPE veg AS ENUM ('vegan', 'lactoVeg', 'ovoVeg', 'lactoOvoVeg', 'pescoVeg', 'polloVeg'); "
 
     createUserQ="CREATE TABLE IF NOT EXISTS UserTable (userID TEXT, password TEXT, gender gen, age INT, allergies allergy[], vName veg, primary key(userID));"
 

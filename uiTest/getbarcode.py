@@ -1,8 +1,9 @@
 import cv2
-
 from pyzbar import pyzbar
 
 def read_barcode():
+
+    cv2.namedWindow("barcode scan")
     cap = cv2.VideoCapture(0 + cv2.CAP_DSHOW)
 
     barcode_set = set()

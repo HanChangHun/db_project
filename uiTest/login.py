@@ -23,6 +23,9 @@ global session # login session
 global searcharr
 searcharr=[]
 
+global sessionInfo
+sessionInfo=[] # allergy, vegiterrian
+
 class initWindow(QMainWindow, initialLayout):
     def __init__(self) :
         super(initWindow, self).__init__(parent=None)
@@ -45,7 +48,7 @@ class initWindow(QMainWindow, initialLayout):
         msg.exec_()
 
     def loginFunction(self):
-        global session
+        global session, sessionInfo
         id = self.inputID_text.text()
         pw = self.inputPS_text.text()
 
@@ -56,6 +59,7 @@ class initWindow(QMainWindow, initialLayout):
             userResult = cur.fetchall()
 
             print(userResult)
+
 
             if(len(userResult)== 0):
                 msg = QMessageBox()
@@ -69,6 +73,7 @@ class initWindow(QMainWindow, initialLayout):
             else:
                 self.loginmessegeFuntion()
                 session=id
+                sessionInfo=[userResult[5], userResult[6]]
                 mainWindow(self)
                 self.inputID_text.setText("")
                 self.inputPS_text.setText("")
@@ -85,6 +90,7 @@ class initWindow(QMainWindow, initialLayout):
 class mainWindow(QMainWindow, mainLayout):
     global session, listview
     global searchArr
+    global itemAllergy, itemRawmtrl
 
     def  __init__(self, parent=None):
         super(mainWindow, self).__init__(parent)
@@ -99,10 +105,16 @@ class mainWindow(QMainWindow, mainLayout):
 
         self.searchBtn.clicked.connect(self.searchFunction)
         self.resultList.itemClicked.connect(self.showResultFunction)
+
         self.searchBBtn.clicked.connect(self.searchBarcodeFunction)
 
-    def showResultFunction(self):
+        self.alterAlist.currentIndexChanged.connect()
+        self.alterVlist.currentIndexChanged.connect()
+
+
+    def showResultFunction(self): # 현재 에러
         global searcharr, listview
+        global itemAllergy, itemRawmtrl
 
         if listview.currentItem().text()== "검색 결과가 없습니다. ":
             return
@@ -117,10 +129,39 @@ class mainWindow(QMainWindow, mainLayout):
             pixmap.scaled(self.productImg.width(), self.productImg.height(), QtCore.Qt.KeepAspectRatio)
 
             self.productImg.setPixmap(pixmap) # url 제품 사진
+            self.productImg.setScaledContents(True)
+            self.productImg.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+
             self.productName.setText("제품명: "+searcharr[index][0])
             self.productAllergy.setText("알러지 유발 물질:" + searcharr[index][2])
             self.productNutrient.setText("영양정보: " + searcharr[index][4])
             self.productmtrl.setText("원재료: "+searcharr[index][1])
+
+            itemAllergy = searcharr[index][2]
+            itemRawmtrl = searcharr[index][1]
+
+            self.showpersonalResult()
+
+    def showpersonalResult(self):
+        global itemAllergy, itemRawmtrl
+
+
+        qPixmapVar = QPixmap()
+        qPixmapVar.load("yes.png")
+        qPixmapVar = qPixmapVar.scaled(81, 71)
+        self.resultVImg.setPixmap(qPixmapVar)
+
+        self.resultVText.setText("이 먹을 수 없는 "+"가 들어있어요! ") #
+
+        qPixmapVar = QPixmap()
+        qPixmapVar.load("no.png")
+        qPixmapVar = qPixmapVar.scaled(81, 71)
+        self.resultAImg.setPixmap(qPixmapVar)
+
+        # 대체식품 검색 후 listview 선택하기. ()
+        for i in range (0, len(searcharr)):
+            self.alterAlist.addItem(searcharr[i][0]);
+        # self.showResultFunction()
 
     def searchBarcodeFunction(self):
         global listview, searcharr

@@ -22,7 +22,7 @@ if stream_log:
 logger.setLevel(level=logging.INFO)
 
 
-def connect(user='postgres', password='1234', db='projectDB', host='localhost', port=5432):
+def connect(user='postgres', password='0000', db='projectDB', host='localhost', port=5433):
     url = 'postgresql://{}:{}@{}:{}/{}'
     url = url.format(user, password, host, port, db)
     con = sqlalchemy.create_engine(url, client_encoding='utf8')

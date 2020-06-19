@@ -56,3 +56,13 @@ CREATE TABLE VegRawMtrl
  polloVeg BOOLEAN,
  primary key(rawMtrl)
 );
+
+CREATE TABLE IF NOT EXISTS UserTable (
+ userID TEXT,
+ password TEXT,
+ gender gen,
+ age INT,
+ allergies allergy[],
+ vName veg,
+ primary key(userID)
+);

@@ -76,7 +76,14 @@ class initWindow(QMainWindow, initialLayout):
             else:
                 self.loginmessegeFuntion()
                 session=id
-                sessionInfo=[userResult[0][4], userResult[0][5]]
+                userall= []
+                newstr = userResult[0][4].replace("{", "")
+                newstr = newstr.replace("}", "")
+
+                userall = newstr.split(',')
+
+                sessionInfo=[userall, userResult[0][5]]
+                print(sessionInfo)
                 mainWindow(self)
                 self.inputID_text.setText("")
                 self.inputPS_text.setText("")
@@ -157,10 +164,10 @@ class mainWindow(QMainWindow, mainLayout):
         else:
             # check veg type and search mtrls
             # 선택한 제품의 채식주의 True, False 받아오기.
-            psearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = " + searcharr[index][5] + " and  where " + sessionInfo[1] + " = 'True' ;"
+            psearchQ = "SELECT rawmtrl FROM vegproduct where prdlstReportNo = '" + str(searcharr[index][5]) + "' and  " + sessionInfo[1] + " = 'True' ;"
             cur.execute(psearchQ)
             personalResult = cur.fetchall()
-            print("veg result: " + personalResult)
+            print("veg result: " + str(personalResult))
 
             if(len(personalResult)==0):
                 qPixmapVar = QPixmap()
@@ -173,20 +180,28 @@ class mainWindow(QMainWindow, mainLayout):
                 qPixmapVar.load("no.png")
                 qPixmapVar = qPixmapVar.scaled(81, 71)
                 self.resultVImg.setPixmap(qPixmapVar)
-                self.resultVText.setText(sessionInfo[1]+"은 먹을 수 없는 "+ "가 들어있어요! ") # 베지터리언 restrict show
+                resStr=""
+                for i in range(0, len(personalResult)):
+                    resStr += str(personalResult[i]).replace("(", '').replace(')', '').replace(',', '') +" "
 
-            # 대체 식품 검색 후 추가
-            for i in range(0, len(searcharr)):
-                asearchQ = "SELECT * FROM vegproduct where prdlstReportNo = " + searcharr[i][
-                    5] + " and  where "+sessionInfo[1]+"= 'True' ;"
-                cur.execute(asearchQ)
-                alterlist = cur.fetchall()
+                self.resultVText.setText(sessionInfo[1]+"은 먹을 수 없는 "+ resStr+ "가(이) 들어있어요! ") # 베지터리언restrict show
+
+                # 대체 식품 검색 후 추가
+                count = 0
+                for i in range(0, len(searcharr)):
+                    asearchQ = "SELECT * FROM vegproduct where prdlstReportNo = '" + str(searcharr[i][5]) + "' and "+sessionInfo[1]+" = 'True' ;"
+                    cur.execute(asearchQ)
+                    alterlist = cur.fetchall()
 
                 if (len(alterlist) == 0):
+                    count= count+1
                     self.alterAlist.addItem(searcharr[i][0]);
 
+            if(count == 0):
+                self.alterAlist.addItem("검색한 결과에 대체 식품이 없습니다! ");
 
-        # allergy section
+
+                # allergy section
         # 0. 사용자가 해당하는 알러지 식품이 없는 경우 > skip
         # 1. 알러지 유발 물질 x, 교차 반응 물질 x > yes.png
         # 2. 알러지 유발 물질 x, 교차 반응 물질 o > no.png > 대체 식품 (검색 결과 list > select)
@@ -196,24 +211,22 @@ class mainWindow(QMainWindow, mainLayout):
             self.resultAText.setText(session + "님은 해당 사항이 없습니다. ")  # 알러지 해당 사항이 없을 경우
         else:
             # select * from allergyproduct where prdlstReportNo = '선택한 식품의 아이디'
-            allarray = [{}]
+            allarray = []
 
             # 선택한 제품의 알러지 일치 유무 받아오기.
             for a in range (0, len(sessionInfo[0])):
-                psearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = " + searcharr[index][5] + " and  where allergy = '" + sessionInfo[0][a] + "';"
+                psearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = '" + str(searcharr[index][5]) + "' and allergy = '" + sessionInfo[0][a]+ "';"
                 cur.execute(psearchQ)
                 personalResult = cur.fetchall()
 
                 # cross-react check
-                if(len(personalResult)==0):
-                    break
-                else:
+                if(len(personalResult)!=0):
                     if(personalResult[3]==True):
-                        allarray.append({sessionInfo[0][a], True, personalResult[1]})
-                        print(allarray)
+                        allarray.append([sessionInfo[0][a], True, personalResult[1]])
                     else:
-                        allarray.append(({sessionInfo[0][a], False, None}))
-                        print(allarray)
+                        allarray.append([sessionInfo[0][a], False, None])
+
+            print("allarray: "+ str(allarray))
 
             # 결과 show
             if len(allarray) == 0 :
@@ -231,22 +244,23 @@ class mainWindow(QMainWindow, mainLayout):
                 # 반복문 - 출력
                 # 대체 식품 검색 후 insert (교차 이든 아니든)
                 resultStr =""
-                for k in range(0, allarray):
+                for k in range(0, len(allarray)):
                     if allarray[k][1] == False:
                         resultStr += "(알러지 유발 물질)" + allarray[k][0] + " "
                     elif allarray[k][1] == True:
                         resultStr += "( " + allarray[k][0]+" 과의 교차반응 물질)" + allarray[k][3] +" "
-                        
+
                 self.resultAText.setText(session + "님이 해당되는 "+ resultStr + "가(이) 들어습니다! ")
 
                 # 대체 식품 검색 후 추가
                 for i in range(0, len(searcharr)):
-                    asearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = " + searcharr[i][5] + " and  where allergy = '" + sessionInfo[0][a] + "';"
-                    cur.execute(asearchQ)
-                    alterlist = cur.fetchall()
+                    for j in range(0, len(sessionInfo)):
+                        asearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = '" + str(searcharr[i][5]) + "' and allergy = '" + sessionInfo[0][j] + "';"
+                        cur.execute(asearchQ)
+                        alterlist = cur.fetchall()
 
-                    if(len(alterlist)==0):
-                        self.alterAlist.addItem(searcharr[i][0]);
+                        if(len(alterlist)==0):
+                            self.alterAlist.addItem(searcharr[i][0]);
 
     def searchBarcodeFunction(self):
         global listview, searcharr

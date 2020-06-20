@@ -1,11 +1,11 @@
 CREATE TABLE FoodInfo
 (
- prdlstReportNo TEXT,
+ prdlstReportNo BIGINT,
  prdlstName TEXT,
  rawMtrl TEXT,
  allergy TEXT,
  nutrient TEXT,
- barcode TEXT,
+ barcode BIGINT,
  prdKind TEXT,
  manufacture TEXT,
  seller TEXT,
@@ -15,51 +15,80 @@ CREATE TABLE FoodInfo
  primary key(prdlstReportNo)
 );
 
-CREATE TABLE PrdKinds
+CREATE TABLE AllergyRawMtrl
 (
- prdKind TEXT,
- superPrdKind TEXT,
+ rawMtrl TEXT,
+ allergy allergy,
  isCrossReact BOOLEAN,
- ParentAllergy TEXT[],
- probability numeric(2,1),
- primary key(prdKind)
-);
-
-CREATE TABLE RawMtrls
-(
- rawMtrl TEXT, 
- superRawMtrl TEXT,
- isCrossReact BOOLEAN,
- ParentAllergy TEXT[],
- probability numeric(2,1),
+ parentAllergy allergy,
+ probablility numeric(2,1),
  primary key(rawMtrl)
 );
 
-CREATE TABLE AllergyPrdKinds
+CREATE TABLE AllergyProduct
 (
- allergy_kind allergy,
- superPrdKind TEXT[],
- primary key(allergy_kind)
+ prdlstReportNo BIGINT,
+ rawMtrl TEXT,
+ allergy allergy,
+ isCrossReact BOOLEAN,
+ parentAllergy allergy,
+ probablility numeric(2,1)
 );
 
-CREATE TABLE VegRestrictPrdKind
+CREATE TABLE VegRawMtrl
 (
- veg_kind veg,
- superPrdKind TEXT,
- primary key(veg_kind)
+ rawMtrl TEXT,
+ vegan BOOLEAN,
+ lactoVeg BOOLEAN,
+ ovoVeg BOOLEAN,
+ lactoOvoVeg BOOLEAN,
+ pescoVeg BOOLEAN,
+ polloVeg BOOLEAN,
+ primary key(rawMtrl)
 );
 
-CREATE TABLE AllergyRawMtrls
+CREATE TABLE VegProduct
 (
- allergy_kind allergy,
- superRawMtrl TEXT,
- primary key(allergy_kind)
-
+ prdlstReportNo BIGINT,
+ rawMtrl TEXT,
+ vegan BOOLEAN,
+ lactoVeg BOOLEAN,
+ ovoVeg BOOLEAN,
+ lactoOvoVeg BOOLEAN,
+ pescoVeg BOOLEAN,
+ polloVeg BOOLEAN
 );
 
-CREATE TABLE VegRestrictRawMtrls
-(
- veg_kind veg,
- RawMtrl TEXT,
- primary key(veg_kind)
+CREATE TABLE IF NOT EXISTS UserTable (
+ userID TEXT,
+ password TEXT,
+ gender gen,
+ age INT,
+ allergies allergy[],
+ vName veg,
+ primary key(userID)
 );
+
+-- CREATE TABLE AllergyPrdKind
+-- (
+--  prdKind TEXT,
+--  allergy allergy,
+--  isCrossReact BOOLEAN,
+--  parentAllergy allergy,
+--  probablility numeric(2,1),
+--  primary key(prdKind)
+-- );
+
+
+-- CREATE TABLE VegPrdKind
+-- (
+--  prdKind TEXT,
+--  vegan BOOLEAN,
+--  lactoVeg BOOLEAN,
+--  ovoVeg BOOLEAN,
+--  lactoOvoVeg BOOLEAN,
+--  pescoVeg BOOLEAN,
+--  polloVeg BOOLEAN,
+--  primary key(prdKind)
+-- );
+

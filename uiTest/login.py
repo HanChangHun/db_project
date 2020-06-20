@@ -149,7 +149,10 @@ class mainWindow(QMainWindow, mainLayout):
         global itemAllergy, itemRawmtrl
 
         # veg section
-        print(sessionInfo)
+        # 0. 사용자가 채식주의자가 아닌 경우  > skip
+        # 1. 사용자가 먹을 수 있는 경우 > yes.png
+        # 2. 사용자가 먹을 수 없는 경우 > no.png > 대체 식품 (검색 결과 list > select)
+
         if(sessionInfo[1]== "nan"): # non veg
             self.resultVText.setText(session+ "님은 해당 사항이 없습니다. ")  # 베지터리언 restrict show
         else:
@@ -164,31 +167,43 @@ class mainWindow(QMainWindow, mainLayout):
             for i in range(0, len(searcharr)):
                 self.alterAlist.addItem(searcharr[i][0]);
 
+
         # allergy section
+        # 0. 사용자가 해당하는 알러지 식품이 없는 경우 > skip
+        # 1. 알러지 유발 물질 x, 교차 반응 물질 x > yes.png
+        # 2. 알러지 유발 물질 x, 교차 반응 물질 o > warning.png > 대체 식품 (검색 결과 list > select)
+        # 3. 알러지 유발 물질 o > no.png > 대체 식품 추가 (검색 결과 list > select)
+
         if(len(sessionInfo[0]) == 0 ):
-            self.resultAText.setText(session + "님은 해당 사항이 없습니다. ")  # 알러지 해당 사항이 없을 경
+            self.resultAText.setText(session + "님은 해당 사항이 없습니다. ")  # 알러지 해당 사항이 없을 경우
         else:
-            # check allergy type
-            # if no -> check crossreact
-            # if yes -> print all allergy
-            isAll = False
-            allarray = []
+            # select * from allergyproduct where prdlstReportNo = '선택한 식품의 아이디'
+            allarray = [{}]
+
             for a in range (0, len(sessionInfo[0])):
-                if sessionInfo[0][a] in searcharr[index][1]: # select view 알러지 유발 물질 array 에 추가!
-                    allarray.append(sessionInfo[0][a])
+                psearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = " + searcharr[index][5] + " and  where allergy = '" + sessionInfo[0][a] + "';"
+                cur.execute(psearchQ)
+                personalResult = cur.fetchall()
 
-            if len(allarray) == 0:
-                isAll = False
-            else:
-                isAll = True
+                # cross-react check
+                if(len(personalResult)==0):
+                    break
+                else:
+                    if(personalResult[3]==True):
+                        allarray.append({sessionInfo[0][a], True, personalResult[1]})
+                        print(allarray)
+                    else:
+                        allarray.append(({sessionInfo[0][a], False, None}))
+                        print(allarray)
 
-            if isAll is False:
+            if len(allarray) == 0 :
                 qPixmapVar = QPixmap()
                 qPixmapVar.load("yes.png")
                 qPixmapVar = qPixmapVar.scaled(81, 71)
                 self.resultAImg.setPixmap(qPixmapVar)
                 self.resultAText.setText( session +"님이 해당되는 알러지 유발 물질이 들어있지 않습니다! ")
-            elif isAll is True:
+
+            else: # 반복문 : 교차반응만 나오면 경고, 유발 반응만 나오면 무조건 경고
                 qPixmapVar = QPixmap()
                 qPixmapVar.load("no.png")
                 qPixmapVar = qPixmapVar.scaled(81, 71)
@@ -204,7 +219,7 @@ class mainWindow(QMainWindow, mainLayout):
 
         searchtext = self.searchBTxt.text()
 
-        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient, prdlstreportno FROM foodinfo where barcode = '" + searchtext + "';"
+        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient, prdlstreportno FROM foodinfo where barcode like '%" + searchtext + "%';"
         cur.execute(searchQ)
         searchResult = cur.fetchall()
 

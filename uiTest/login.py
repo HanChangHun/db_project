@@ -194,7 +194,6 @@ class mainWindow(QMainWindow, mainLayout):
                     alterlist = cur.fetchall()
 
                     if (len(alterlist) == 0):
-                        count= count+1
                         self.alterVlist.addItem(searcharr[i][0]);
 
 

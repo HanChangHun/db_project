@@ -56,8 +56,8 @@ def execute_queries(conn, queries):
 
 
 def initializ_db(conn):
-    for v in ["AllergyProduct", "VegterianProduct"]:
-        drop_query = "drop view {}".format(v)
+    for v in ["Allergytrigger"]:
+        drop_query = "drop trigger {} on foodinfo".format(v)
         execute_query(conn, drop_query)
     for table in conn.table_names():
         drop_query = "drop table {}".format(table)

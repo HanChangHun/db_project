@@ -115,7 +115,7 @@ class mainWindow(QMainWindow, mainLayout):
         # self.alterVlist.currentIndexChanged.connect()
 
 
-    def showResultFunction(self): # 현재 에러
+    def showResultFunction(self):
         global searcharr, listview
         global itemAllergy, itemRawmtrl
 
@@ -143,35 +143,117 @@ class mainWindow(QMainWindow, mainLayout):
             itemAllergy = searcharr[index][2]
             itemRawmtrl = searcharr[index][1]
 
-            self.showpersonalResult()
+            self.showpersonalResult(index)
 
-    def showpersonalResult(self):
-        global itemAllergy, itemRawmtrl
+    def showpersonalResult(self, index):
+        global itemAllergy, itemRawmtrl, searcharr
+
+        # veg section
+        # 0. 사용자가 채식주의자가 아닌 경우  > skip
+        # 1. 사용자가 먹을 수 있는 경우 > yes.png
+        # 2. 사용자가 먹을 수 없는 경우 > no.png > 대체 식품 (검색 결과 list > select)
+        if(sessionInfo[1]== "nan"): # non veg
+            self.resultVText.setText(session+ "님은 해당 사항이 없습니다. ")  # 베지터리언 restrict show
+        else:
+            # check veg type and search mtrls
+            # 선택한 제품의 채식주의 True, False 받아오기.
+            psearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = " + searcharr[index][5] + " and  where " + sessionInfo[1] + " = 'True' ;"
+            cur.execute(psearchQ)
+            personalResult = cur.fetchall()
+            print("veg result: " + personalResult)
+
+            if(len(personalResult)==0):
+                qPixmapVar = QPixmap()
+                qPixmapVar.load("yes.png")
+                qPixmapVar = qPixmapVar.scaled(81, 71)
+                self.resultVImg.setPixmap(qPixmapVar)
+                self.resultVText.setText(sessionInfo[1] + "은 먹을 수 있는 식품입니다! ")  # 베지터리언 restrict show
+            else:
+                qPixmapVar = QPixmap()
+                qPixmapVar.load("no.png")
+                qPixmapVar = qPixmapVar.scaled(81, 71)
+                self.resultVImg.setPixmap(qPixmapVar)
+                self.resultVText.setText(sessionInfo[1]+"은 먹을 수 없는 "+ "가 들어있어요! ") # 베지터리언 restrict show
+
+            # 대체 식품 검색 후 추가
+            for i in range(0, len(searcharr)):
+                asearchQ = "SELECT * FROM vegproduct where prdlstReportNo = " + searcharr[i][
+                    5] + " and  where "+sessionInfo[1]+"= 'True' ;"
+                cur.execute(asearchQ)
+                alterlist = cur.fetchall()
+
+                if (len(alterlist) == 0):
+                    self.alterAlist.addItem(searcharr[i][0]);
 
 
-        qPixmapVar = QPixmap()
-        qPixmapVar.load("yes.png")
-        qPixmapVar = qPixmapVar.scaled(81, 71)
-        self.resultVImg.setPixmap(qPixmapVar)
+        # allergy section
+        # 0. 사용자가 해당하는 알러지 식품이 없는 경우 > skip
+        # 1. 알러지 유발 물질 x, 교차 반응 물질 x > yes.png
+        # 2. 알러지 유발 물질 x, 교차 반응 물질 o > no.png > 대체 식품 (검색 결과 list > select)
+        # 3. 알러지 유발 물질 o > no.png > 대체 식품 추가 (검색 결과 list > select)
 
-        self.resultVText.setText("이 먹을 수 없는 "+"가 들어있어요! ") #
+        if(len(sessionInfo[0]) == 0 ):
+            self.resultAText.setText(session + "님은 해당 사항이 없습니다. ")  # 알러지 해당 사항이 없을 경우
+        else:
+            # select * from allergyproduct where prdlstReportNo = '선택한 식품의 아이디'
+            allarray = [{}]
 
-        qPixmapVar = QPixmap()
-        qPixmapVar.load("no.png")
-        qPixmapVar = qPixmapVar.scaled(81, 71)
-        self.resultAImg.setPixmap(qPixmapVar)
+            # 선택한 제품의 알러지 일치 유무 받아오기.
+            for a in range (0, len(sessionInfo[0])):
+                psearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = " + searcharr[index][5] + " and  where allergy = '" + sessionInfo[0][a] + "';"
+                cur.execute(psearchQ)
+                personalResult = cur.fetchall()
 
-        # 대체식품 검색 후 listview 선택하기. ()
-        for i in range (0, len(searcharr)):
-            self.alterAlist.addItem(searcharr[i][0]);
-        # self.showResultFunction()
+                # cross-react check
+                if(len(personalResult)==0):
+                    break
+                else:
+                    if(personalResult[3]==True):
+                        allarray.append({sessionInfo[0][a], True, personalResult[1]})
+                        print(allarray)
+                    else:
+                        allarray.append(({sessionInfo[0][a], False, None}))
+                        print(allarray)
+
+            # 결과 show
+            if len(allarray) == 0 :
+                qPixmapVar = QPixmap()
+                qPixmapVar.load("yes.png")
+                qPixmapVar = qPixmapVar.scaled(81, 71)
+                self.resultAImg.setPixmap(qPixmapVar)
+                self.resultAText.setText(session +"님이 해당되는 알러지 유발 물질이 들어있지 않습니다!! ")
+            else:
+                qPixmapVar = QPixmap()
+                qPixmapVar.load("no.png")
+                qPixmapVar = qPixmapVar.scaled(81, 71)
+                self.resultAImg.setPixmap(qPixmapVar)
+
+                # 반복문 - 출력
+                # 대체 식품 검색 후 insert (교차 이든 아니든)
+                resultStr =""
+                for k in range(0, allarray):
+                    if allarray[k][1] == False:
+                        resultStr += "(알러지 유발 물질)" + allarray[k][0] + " "
+                    elif allarray[k][1] == True:
+                        resultStr += "( " + allarray[k][0]+" 과의 교차반응 물질)" + allarray[k][3] +" "
+                        
+                self.resultAText.setText(session + "님이 해당되는 "+ resultStr + "가(이) 들어습니다! ")
+
+                # 대체 식품 검색 후 추가
+                for i in range(0, len(searcharr)):
+                    asearchQ = "SELECT * FROM allergyproduct where prdlstReportNo = " + searcharr[i][5] + " and  where allergy = '" + sessionInfo[0][a] + "';"
+                    cur.execute(asearchQ)
+                    alterlist = cur.fetchall()
+
+                    if(len(alterlist)==0):
+                        self.alterAlist.addItem(searcharr[i][0]);
 
     def searchBarcodeFunction(self):
         global listview, searcharr
 
         searchtext = self.searchBTxt.text()
 
-        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient FROM foodinfo where barcode like '%" + searchtext + "%';"
+        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient, prdlstreportno FROM foodinfo where barcode like '%" + searchtext + "%';"
         cur.execute(searchQ)
         searchResult = cur.fetchall()
 
@@ -201,7 +283,7 @@ class mainWindow(QMainWindow, mainLayout):
 
         searchtext=self.searchTxt.text()
 
-        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient FROM foodinfo where prdlstname like '%" + searchtext + "%';"
+        searchQ = "SELECT prdlstname, rawmtrl, allergy, imgurl1, nutrient, prdlstreportno  FROM foodinfo where prdlstname like '%" + searchtext + "%';"
         cur.execute(searchQ)
         searchResult = cur.fetchall()
 
@@ -302,7 +384,7 @@ class signinWindow(QMainWindow, signinLayout):
         # get allergey
         allegy=[]
         if self.none_check.isChecked():
-            print('nan')
+            print('no allergy')
         else:
             if self.bean_check.isChecked():
                 allegy.append(self.bean_check.text())
@@ -354,7 +436,6 @@ class signinWindow(QMainWindow, signinLayout):
         allstr = allstr.replace("'", "")
 
         if isfilled and ischecked :
-
             adduserQ = "INSERT INTO usertable values('" + id + "', '" + pw + "', '" + gender + "', " + str(age) + ", '" + allstr + "', '" + veg + "')"
             print(adduserQ)
             cur.execute(adduserQ)

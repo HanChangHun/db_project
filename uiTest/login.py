@@ -193,12 +193,12 @@ class mainWindow(QMainWindow, mainLayout):
                     cur.execute(asearchQ)
                     alterlist = cur.fetchall()
 
-                if (len(alterlist) == 0):
-                    count= count+1
-                    self.alterAlist.addItem(searcharr[i][0]);
+                    if (len(alterlist) == 0):
+                        count= count+1
+                        self.alterAlist.addItem(searcharr[i][0]);
 
-            if(count == 0):
-                self.alterAlist.addItem("검색한 결과에 대체 식품이 없습니다! ");
+                if(count == 0):
+                    self.alterAlist.addItem("검색한 결과에 대체 식품이 없습니다! ");
 
 
                 # allergy section

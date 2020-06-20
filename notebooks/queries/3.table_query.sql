@@ -1,11 +1,11 @@
 CREATE TABLE FoodInfo
 (
- prdlstReportNo TEXT,
+ prdlstReportNo BIGINT,
  prdlstName TEXT,
  rawMtrl TEXT,
  allergy TEXT,
  nutrient TEXT,
- barcode TEXT,
+ barcode BIGINT,
  prdKind TEXT,
  manufacture TEXT,
  seller TEXT,
@@ -13,16 +13,6 @@ CREATE TABLE FoodInfo
  imgurl1 TEXT,
  imgurl2 TEXT,
  primary key(prdlstReportNo)
-);
-
-CREATE TABLE AllergyPrdKind
-(
- prdKind TEXT,
- allergy allergy,
- isCrossReact BOOLEAN,
- parentAllergy allergy,
- probablility numeric(2,1),
- primary key(prdKind)
 );
 
 CREATE TABLE AllergyRawMtrl
@@ -35,16 +25,14 @@ CREATE TABLE AllergyRawMtrl
  primary key(rawMtrl)
 );
 
-CREATE TABLE VegPrdKind
+CREATE TABLE AllergyProduct
 (
- prdKind TEXT,
- vegan BOOLEAN,
- lactoVeg BOOLEAN,
- ovoVeg BOOLEAN,
- lactoOvoVeg BOOLEAN,
- pescoVeg BOOLEAN,
- polloVeg BOOLEAN,
- primary key(prdKind)
+ prdlstReportNo BIGINT,
+ rawMtrl TEXT,
+ allergy allergy,
+ isCrossReact BOOLEAN,
+ parentAllergy allergy,
+ probablility numeric(2,1)
 );
 
 CREATE TABLE VegRawMtrl
@@ -59,6 +47,18 @@ CREATE TABLE VegRawMtrl
  primary key(rawMtrl)
 );
 
+CREATE TABLE VegProduct
+(
+ prdlstReportNo BIGINT,
+ rawMtrl TEXT,
+ vegan BOOLEAN,
+ lactoVeg BOOLEAN,
+ ovoVeg BOOLEAN,
+ lactoOvoVeg BOOLEAN,
+ pescoVeg BOOLEAN,
+ polloVeg BOOLEAN
+);
+
 CREATE TABLE IF NOT EXISTS UserTable (
  userID TEXT,
  password TEXT,
@@ -68,3 +68,27 @@ CREATE TABLE IF NOT EXISTS UserTable (
  vName veg,
  primary key(userID)
 );
+
+-- CREATE TABLE AllergyPrdKind
+-- (
+--  prdKind TEXT,
+--  allergy allergy,
+--  isCrossReact BOOLEAN,
+--  parentAllergy allergy,
+--  probablility numeric(2,1),
+--  primary key(prdKind)
+-- );
+
+
+-- CREATE TABLE VegPrdKind
+-- (
+--  prdKind TEXT,
+--  vegan BOOLEAN,
+--  lactoVeg BOOLEAN,
+--  ovoVeg BOOLEAN,
+--  lactoOvoVeg BOOLEAN,
+--  pescoVeg BOOLEAN,
+--  polloVeg BOOLEAN,
+--  primary key(prdKind)
+-- );
+

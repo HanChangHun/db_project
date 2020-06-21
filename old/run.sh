@@ -22,8 +22,7 @@ echo "num_cpu: $CPU_NUM"
 echo "momory size: $MEMORY_SIZE"
 echo "momory swap size: $MEMORY_SWAP_SIZE"
 
-docker run -it \
- -v $PWD:/opt/nb -p 8890:8890 ehwjs1914/imp:1.4 \
- -m ${MEMORY_SIZE}G \
- --memory-swap ${MEMORY_SWAP_SIZE}G \
- --cpus ${CPU_SHARES}
+docker run --name db40 -e POSTGRES_PASSWORD=1234 -dit postgres \
+           -m ${MEMORY_SIZE}G \
+           --memory-swap ${MEMORY_SWAP_SIZE}G \
+           --cpus ${CPU_SHARES}

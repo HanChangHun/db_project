@@ -20,6 +20,8 @@ if sys.platform.lower() == 'darwin':
     conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="0000", port="5433")
 elif sys.platform == 'win32':
     conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="1234", port="5432")
+else:
+    conn = pg2.connect(host="localhost", database="projectDB", user="postgres", password="1234", port="5432")
 
 cur = conn.cursor()
 

@@ -3,4 +3,7 @@ pandas
 sqlalchemy
 opencv-python
 tqdm
-BeautifulSoup
+beautifulsoup4
+PyQt5
+pyzbar
+psycopg2

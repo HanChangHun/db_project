@@ -21,6 +21,7 @@ pip3 install -r requirements.txt
 input command prompt like below 
 
 ```
+cd src
 python upload_data.py --user postgres --pwd 1234 --db projectDB --host localhost --port 5432
 ```
 
@@ -37,7 +38,7 @@ python upload_data.py --user postgres --pwd 1234 --db projectDB --host localhost
 ## Use GUI
 
 ```
-python uiTest/login.py
+python main.py
 ```
 
  ### User Scenario
@@ -64,6 +65,7 @@ python uiTest/login.py
 input command prompt like below 
 
 ```
+cd src
 python make_dataset.py
 ```
 
